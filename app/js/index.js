@@ -1,127 +1,117 @@
-import * as listeners from './listeners.js'
-import Player from './player.js'
-import OpponentCollection from './opponents.js'
-import Firebase from './firebase.js'
+import display from './display.js'
+import Network from './network.js'
 
-import Matter from 'matter-js'
+// var net = new Network([2, 4, 4, 2], 20)
+var net = new Network([2, 1], 20)
+net.weights = net.randomWeights()
+// console.log(net.weights)
+// net.weights = [
+//   [
+//     [10, 10],
+//     [10, 10]
+//   ],
+//   [
+//     [0, 15, 10],
+//   ]
+// ]
+//
+// console.log(net.cost([
+//   [1, 1],
+//   [0, 0]
+// ], [
+//   [1],
+//   [0.5]
+// ]))
+//
+// console.log(net.propagate([0, 0]))
 
-document.onkeydown = listeners.onkeydown
-document.onkeyup = listeners.onkeyup
-document.onmousemove = listeners.onmousemove
 
-var engine = Matter.Engine.create()
-engine.world.gravity.y = 0
+// var testInputs = [
+//   [0, 0],
+//   [0, 1],
+//   [1, 0],
+//   [1, 1]
+// ]
+//
+// var testExpected = [
+//   [0, 1],
+//   [1, 0],
+//   [1, 1],
+//   [0, 0]
+// ]
 
-var render = Matter.Render.create({
-    element: document.querySelector('.game-canvas'),
-    options: {
-      width: 1250,
-      height: 550,
-      background: '#d9d9d9',
-      wireframeBackground: '#222',
-      hasBounds: true,
-      enabled: true,
-      wireframes: false,
-      showSleeping: true,
-      showDebug: false,
-      showBroadphase: false,
-      showBounds: false,
-      showVelocity: false,
-      showCollisions: false,
-      showAxes: false,
-      showPositions: false,
-      showAngleIndicator: false,
-      showIds: false,
-      showShadows: false
-    },
-    engine: engine
+var testInputs = [
+  [0, 0],
+  [0, 1],
+  [1, 0],
+  [1, 1]
+]
+
+var testExpected = [
+  [0],
+  [0],
+  [0],
+  [1]
+]
+
+// net.logWeights()
+
+var lambda = 45
+for (var i = 0; i < 50; i += 1) {
+  net.backPropagate(testInputs, testExpected, 0.3, lambda)
+  console.log(i, net._round(net.cost(testInputs, testExpected, lambda)))
+}
+
+console.log('---')
+
+console.log('cost', net._round(net.cost(testInputs, testExpected, lambda)))
+console.log(net.weights)
+
+console.log('---')
+
+net.informativeCost(testInputs, testExpected)
+net.logWeights()
+
+display(net.weights, 20, {
+  neuronSize: 20,
+  neuronGap: 70,
+  layerGap: 100,
+  weightWidth: 4
 })
 
-var input = {
-  mouse: listeners.mouse,
-  key: listeners.key
-}
+// var displayNet = new Network([2, 3, 3, 1], 10)
+// displayNet.weights = displayNet.randomWeights()
+// display(displayNet.weights, 20, {
+//   neuronSize: 20,
+//     neuronGap: 70,
+//     layerGap: 100,
+//     weightWidth: 4
+// })
 
-Math.randomRange = function (min, max) {
-  return Math.random() * (max - min) + min
-}
+// cost(net, [
+//   {'case': [0, 0], 'expect': [0, 1]},
+//   {'case': [0, 1], 'expect': [1, 0]},
+//   {'case': [1, 0], 'expect': [1, 1]},
+//   {'case': [1, 1], 'expect': [0, 0]}
+// ])
 
-function bulletCheck () {
-  for (var i = 0; i < player.bullets.length; i += 1) {
-    let pos = player.bullets[i].position
-    let output = {
-      x: 0,
-      y: 0
-    }
+// cost(net, [
+//   {'case': [0, 0], 'expect': [0]},
+//   {'case': [0, 1], 'expect': [1]},
+//   {'case': [1, 0], 'expect': [1]},
+//   {'case': [1, 1], 'expect': [1]}
+// ])
 
-    output.x = Math.pow(pos.x - player.body.position.x, 2)
-    output.y = Math.pow(pos.y - player.body.position.y, 2)
-
-    if (Math.sqrt(output.x + output.y) >= player.settings.shot.distance) {
-      Matter.World.remove(engine.world, player.bullets[i])
-    }
-  }
-}
-
-function updatePlayers () {
-  // player.update(input, boundingRectangle)
-  // opponent.update(Window.data, database.id)
-}
-
-var canvas = document.querySelector('.game-canvas canvas')
-var boundingRectangle = canvas.getBoundingClientRect()
-
-var doConnected = true
-
-var player
-var opponents = new OpponentCollection (Matter, render, engine, '#C44D58')
-var database = new Firebase (firebase)
-
-Matter.Events.on(engine, 'beforeUpdate', function () {
-  if (database.connected) {
-    update()
-  }
-})
-
-function disconnected () {
-  opponents.reset()
-}
-
-function connected () {
-  opponents.generate(database.data, database.id)
-  player = new Player (Matter, render, engine, '#4ECDC4')
-}
-
-function update () {
-  bulletCheck()
-
-  opponents.update(database.data, database.id)
-
-  player.update({key: database.data[database.id].key, mouse: input.mouse}, boundingRectangle)
-  Matter.Bounds.shift(render.bounds, {x: player.body.position.x - render.options.width / 2, y: player.body.position.y - render.options.height / 2})
-
-  database.upload(player, engine, input)
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelector('#connect').onclick = function () {
-    new Promise (function (resolve, reject) {
-      database.connect({
-        lobby: document.querySelector('#lobby').value,
-        id: document.querySelector('#player').value
-      }, resolve)
-    }).then(connected)
-  }
-  document.querySelector('#disconnect').onclick = function () {
-    database.disconnect()
-    disconnected()
-  }
-})
-
-window.addEventListener('beforeunload', function (event) {
-  database.disconnect()
-  disconnected()
-}, false)
-
-Matter.Engine.run(engine)
-Matter.Render.run(render)
+// console.log(Math.floor(net.propagate([0, 1]) * 100) / 100)
+//
+// function cost (neuralNet, cases) {
+//   var result = 0
+//   for (var i = 0; i < cases.length; i += 1) {
+//     let currentResult = neuralNet.propagate(cases[i].case)
+//     for (var n = 0; n < currentResult.length; n += 1) {
+//       result += Math.pow(cases[i].expect[n] - currentResult[n], 2)
+//     }
+//     console.log('for case', cases[i].case, 'expected', cases[i].expect, 'got', Math.floor(currentResult * 100) / 100)
+//   }
+//   console.log(result)
+// }

@@ -1,7 +1,13 @@
 @import 'https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,600,700';
 canvas {
-  display: block;
-  margin: 0 auto; }
+  background-color: #d3d3d3;
+  float: left;
+  width: 50%;
+  height: 500; }
+
+.layout {
+  margin: 20;
+  padding: 20; }
 
 #title {
   font-size: 100;
@@ -12,10 +18,27 @@ canvas {
   margin-top: 20px;
   margin-bottom: 20px; }
 
-#version {
-  font-size: 20;
+#learning {
+  background-color: #f06292;
+  width: 21%;
+  height: 500;
+  float: left;
+  padding-left: 20px; }
+
+#control {
+  background-color: #64b5f6;
+  width: 25%;
+  height: 500;
+  float: left;
+  padding-left: 20px; }
+
+.contoller h1 {
+  color: #fff;
   font-family: 'Open Sans', sans-serif;
-  font-weight: bold;
-  text-align: center;
-  color: #555;
-  margin-bottom: 40px; }
+  font-weight: bold; }
+
+.contoller p {
+  color: #fff;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: normal;
+  font-size: 14; }

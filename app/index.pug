@@ -1,20 +1,20 @@
 html(lang="en")
   head
-    title Tanky Game
+    title Nets!
 
     link(rel='stylesheet', href='css/styles.css')
 
-    script(src='https://www.gstatic.com/firebasejs/3.6.8/firebase.js')
-
-  body
-    h1#title Tanks
-    p#version 1.2
-    .game-canvas
-
-    input#lobby(type='text')
-    input#player(type='text')
-    button#connect connect
-    button#disconnect disconnect
+  body(ng-app='')
+    h1#title Neural Networks
     
-    //- script(src='vendor.bundle.js')
+    .layout
+      canvas(width=700, height=500)
+      .contoller#learning
+        h1 Net Learning
+          p(ng-repeat='num in [1, 2]') {{num}}
+      
+      .contoller#control
+        h1 Networks
+      
     script(src='main.bundle.js')
+    script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.js')
