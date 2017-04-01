@@ -1,6 +1,7 @@
 var canvas = document.querySelector('canvas')
 
-canvas.width = canvas.parentElement.offsetWidth / 2;
+canvas.width = canvas.parentElement.offsetWidth * 0.5;
+canvas.height = canvas.parentElement.offsetHeight;
 
 console.log(canvas.parentElement)
 

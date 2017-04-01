@@ -1,8 +1,31 @@
+import display from './display.js'
+
 export default class Network {
-  constructor (structure, range) {
+  constructor (structure, options) {
     this.structure = structure
-    this.range = range
+    this.range = options.weightRange
     this.weights = []
+
+    this.costHistory = []
+    this.costCounter = 0
+    this.outputs = []
+
+    this.regParameter = options.regParameter
+    this.learningRate = options.learningRate
+    this.train = options.train
+  }
+
+  learn (iterations) {
+    for (var i = 0; i < iterations; i += 1) {
+      this.backPropagate(this.train, this.learningRate, this.regParameter)
+      this.costHistory[i + this.costCounter] = [i + this.costCounter, this._round(this.cost(this.train, this.regParameter))]
+    }
+    this.costCounter += iterations
+    this.informativeCost()
+  }
+
+  display (options) {
+    display(this.weights, this.range, options)
   }
 
   propagate (inputs) {
@@ -29,13 +52,13 @@ export default class Network {
     return output
   }
 
-  cost (input, expected, lambda) {
+  cost (data, lambda) {
     var cost = 0
     var count = 0
-    for (var i = 0; i < input.length; i += 1) {
-      var results = this.propagate(input[i])
+    for (var i = 0; i < data.length; i += 1) {
+      var results = this.propagate(data[i][0])
       for (var result = 0; result < results.length; result += 1) {
-        cost += Math.abs(results[result] - expected[i][result])
+        cost += Math.abs(results[result] - data[i][1][result])
         count += 1
       }
     }
@@ -54,17 +77,23 @@ export default class Network {
     return cost + (reg / count)
   }
 
-  backPropagate (input, expected, learnRate, lambda) {
+  backPropagate (data, learnRate, lambda) {
     for (var layer = this.structure.length; layer > 0; layer -= 1) {
       for (var neuron = 0; neuron < this.structure[layer]; neuron += 1) {
         for (var weight = 0; weight < this.weights[layer][neuron].length; weight += 1) {
+          // console.log('-----')
+          // for (var d = -this.range; d < this.range; d += 2) {
+          //   this.weights[layer][neuron][weight] = d
+          //   console.log(d + ',', this.cost(input, expected, lambda))
+          // }
+
           var originalWeight = this.weights[layer][neuron][weight]
 
           this.weights[layer][neuron][weight] = originalWeight + learnRate
-          var incCost = this.cost(input, expected, lambda)
+          var incCost = this.cost(data, lambda)
 
           this.weights[layer][neuron][weight] = originalWeight - learnRate
-          var decCost = this.cost(input, expected, lambda)
+          var decCost = this.cost(data, lambda)
 
           this.weights[layer][neuron][weight] = originalWeight
 
@@ -73,14 +102,14 @@ export default class Network {
 
           if (Math.random() < 0.5) {
             this.weights[layer][neuron][weight] = this._random(this.range, -this.range)
-            var randomCost = this.cost(input, expected, lambda)
+            var randomCost = this.cost(data, lambda)
             if (randomCost > decCost && randomCost > incCost) this.weights[layer][neuron][weight] = originalWeight
-            if (randomCost > decCost && randomCost > incCost) console.log('guess was better!')
+            if (randomCost < decCost && randomCost < incCost) console.log('new guess cost', randomCost, 'was better than old cost of', incCost)
           }
 
           // console.log('weight', originalWeight, 'inc cost', incCost, 'dec cost', decCost, 'result', (incCost > decCost) ? 'dec' : (incCost != decCost) ? 'inc' : 'same')
 
-          this.weights[layer][neuron][weight] = Math.max(-this.range * 2, Math.min(this.weights[layer][neuron][weight], this.range * 2))
+          this.weights[layer][neuron][weight] = Math.max(-this.range, Math.min(this.weights[layer][neuron][weight], this.range))
         }
       }
     }
@@ -107,13 +136,14 @@ export default class Network {
     return weights
   }
 
-  informativeCost (input, expected) {
-    for (var i = 0; i < input.length; i += 1) {
-      var results = this.propagate(input[i])
+  informativeCost () {
+    for (var i = 0; i < this.train.length; i += 1) {
+      var results = this.propagate(this.train[i][0])
       for (var n = 0; n < results.length; n += 1) {
-        results[n] = this._round(results[n])
+        // results[n] = (results[n] < 0.5) ? 0 : 1
+        results[n] = Math.floor(results[n] * 100) / 100
       }
-      console.log('expected', expected[i], 'got', results)
+      this.outputs[i] = [this.train[i][0], results]
     }
   }
 

@@ -3,11 +3,12 @@ canvas {
   background-color: #d3d3d3;
   float: left;
   width: 50%;
-  height: 500; }
+  height: 100%; }
 
 .layout {
   margin: 20;
-  padding: 20; }
+  padding: 20;
+  height: 70%; }
 
 #title {
   font-size: 100;
@@ -20,15 +21,15 @@ canvas {
 
 #learning {
   background-color: #f06292;
-  width: 21%;
-  height: 500;
+  width: 23%;
+  height: 100%;
   float: left;
   padding-left: 20px; }
 
 #control {
   background-color: #64b5f6;
-  width: 25%;
-  height: 500;
+  width: 23%;
+  height: 100%;
   float: left;
   padding-left: 20px; }
 
@@ -40,5 +41,40 @@ canvas {
 .contoller p {
   color: #fff;
   font-family: 'Open Sans', sans-serif;
-  font-weight: normal;
-  font-size: 14; }
+  font-weight: lighter;
+  font-size: 14;
+  line-height: 80%; }
+
+.contoller input {
+  width: 30px; }
+
+.scrollable {
+  overflow: auto;
+  padding-left: 15;
+  margin-right: 20;
+  margin-top: 10;
+  margin-bottom: 10; }
+
+.scrollable p {
+  line-height: 80%;
+  font-size: 12; }
+
+#iteretations {
+  height: 58%;
+  background-color: #ec407a; }
+
+#data {
+  height: 30%;
+  background-color: #42a5f5; }
+
+#outputs {
+  height: 30%;
+  background-color: #42a5f5; }
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0; }
+
+.inputy {
+  display: inline; }
