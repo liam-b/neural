@@ -1,2 +1,0 @@
-# neural
-Nets and stuff

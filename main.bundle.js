@@ -89,12 +89,13 @@
 	// })
 
 	var net = new _network2.default([3, 4, 4, 4, 2], {
-	  'regParameter': 45,
+	  'regParameter': 46,
 	  'learningRate': 0.3,
 	  'weightRange': 40,
 
 	  'train': [[[0, 0, 0], [0, 0]], [[0, 0, 1], [1, 0]], [[0, 1, 0], [1, 0]], [[0, 1, 1], [0, 1]], [[1, 0, 0], [1, 0]], [[1, 0, 1], [0, 1]], [[1, 1, 0], [0, 1]], [[1, 1, 1], [1, 1]]]
-	});
+	}); // import Chart from 'chart.js'
+
 
 	var trainingIterations = 100;
 
@@ -118,6 +119,7 @@
 	      layerGap: 100,
 	      weightWidth: 4
 	    });
+	    net.logWeights();
 	  };
 	});
 
