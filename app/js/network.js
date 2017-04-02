@@ -1,4 +1,8 @@
 import display from './display.js'
+import randomSeed from 'random-seed'
+
+var rand = randomSeed.create()
+rand.seed('hi')
 
 export default class Network {
   constructor (structure, options) {
@@ -13,6 +17,8 @@ export default class Network {
     this.regParameter = options.regParameter
     this.learningRate = options.learningRate
     this.train = options.train
+
+    this.lastCost = 0
   }
 
   learn (iterations) {
@@ -78,7 +84,7 @@ export default class Network {
   }
 
   backPropagate (data, learnRate, lambda) {
-    for (var layer = this.structure.length; layer > 0; layer -= 1) {
+    for (var layer = this.structure.length - 1; layer > -1; layer -= 1) {
       for (var neuron = 0; neuron < this.structure[layer]; neuron += 1) {
         for (var weight = 0; weight < this.weights[layer][neuron].length; weight += 1) {
           // console.log('-----')
@@ -100,12 +106,12 @@ export default class Network {
           if (incCost > decCost) this.weights[layer][neuron][weight] -= learnRate
           else if (incCost != decCost) this.weights[layer][neuron][weight] += learnRate
 
-          if (Math.random() < 0.5) {
-            this.weights[layer][neuron][weight] = this._random(this.range, -this.range)
-            var randomCost = this.cost(data, lambda)
-            if (randomCost > decCost && randomCost > incCost) this.weights[layer][neuron][weight] = originalWeight
-            if (randomCost < decCost && randomCost < incCost) console.log('new guess cost', randomCost, 'was better than old cost of', incCost)
-          }
+          // if (Math.random() < 0.5) {
+          //   this.weights[layer][neuron][weight] = this._random(this.range, -this.range)
+          //   var randomCost = this.cost(data, lambda)
+          //   if (randomCost > decCost && randomCost > incCost) this.weights[layer][neuron][weight] = originalWeight
+          //   if (randomCost < decCost && randomCost < incCost) console.log('new guess cost', randomCost, 'was better than old cost of', incCost)
+          // }
 
           // console.log('weight', originalWeight, 'inc cost', incCost, 'dec cost', decCost, 'result', (incCost > decCost) ? 'dec' : (incCost != decCost) ? 'inc' : 'same')
 
@@ -113,6 +119,25 @@ export default class Network {
         }
       }
     }
+
+    // if (this.lastCost == this._round(this.cost(data, lambda))) {
+    //   for (var layer = this.structure.length; layer > 0; layer -= 1) {
+    //     for (var neuron = 0; neuron < this.structure[layer]; neuron += 1) {
+    //       for (var weight = 0; weight < this.weights[layer][neuron].length; weight += 1) {
+    //         var bestWeight = 0
+    //         for (var d = -this.range; d < this.range; d += 2) {
+    //           this.weights[layer][neuron][weight] = d
+    //           if (this.cost(data, lambda) < bestWeight) {
+    //             bestWeight = this.weights[layer][neuron][weight]
+    //           }
+    //         }
+    //         this.weights[layer][neuron][weight] = bestWeight
+    //       }
+    //     }
+    //   }
+    // }
+    //
+    // this.lastCost = this._round(this.cost(data, lambda))
   }
 
   randomWeights () {
@@ -158,7 +183,7 @@ export default class Network {
   }
 
   _random (max, min) {
-    return Math.random() * (max - min) + min
+    return rand.random() * (max - min) + min
   }
 
   _sigmoid (num) {

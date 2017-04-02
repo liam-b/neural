@@ -1,9 +1,7 @@
-var canvas = document.querySelector('canvas')
+var canvas = document.querySelector('#network')
 
 canvas.width = canvas.parentElement.offsetWidth * 0.5;
 canvas.height = canvas.parentElement.offsetHeight;
-
-console.log(canvas.parentElement)
 
 var context = canvas.getContext('2d')
 
